@@ -1,0 +1,12 @@
+Image,Model,Generated Alt Text
+amazon_img.png,openai,"The image shows an Amazon webpage featuring a promotion for spring home improvements with up to 45% off Ring security products. The page highlights items to continue shopping, buy again, and today's deals, with a green background and an image of a phone and security camera."
+amazon_img.png,gemini,Here's alt text for the image: A promotional banner on the Amazon website advertises up to 45% off Ring security devices as part of a spring home improvement sale.
+Wikipedia_img.png,openai,"This is a screenshot of a Wikipedia article about the American Revolutionary War, featuring a side panel with images and key facts, describing the historical events, figures, and outcomes of the conflict."
+Wikipedia_img.png,gemini,"A painting depicting the surrender of British General Cornwallis at Yorktown during the American Revolutionary War, along with smaller images of other key battles."
+yelp_img.png,openai,"The image shows a Yelp review page for a restaurant called Dleña in Washington, DC, featuring positive reviews and accompanying food photos, highlighting dishes like corn empanadas and drinks like tamarindo margaritas."
+yelp_img.png,gemini,"Four photos of food and drinks from a Yelp review of a Latin American restaurant, Dleña, in Washington, DC."
+NYT_img.png,openai,"This image shows a New York Times webpage featuring a main article about financial markets with a large photo of a white-haired man in a suit, focusing intently on his notes, and several other articles listed alongside with varying topics, reflecting a standard news layout."
+NYT_img.png,gemini,"Here's alt text for the image: A screenshot of the New York Times website homepage, displaying various news articles with accompanying images, including one of Jerome Powell and another of a hand gesture from the movie *Pride & Prejudice*.
+"
+ikea_img.png,openai,"The image shows an oak veneer bed frame from IKEA with built-in storage drawers, set in a bright bedroom with a large window and modern decor. The product is highlighted on the IKEA website, showcasing its design and functionality."
+ikea_img.png,gemini,"Here's alt text for the image: A product photo shows a queen-size oak veneer bed frame with storage drawers, situated in a modern bedroom setting."
