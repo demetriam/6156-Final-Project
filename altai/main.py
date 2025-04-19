@@ -1,23 +1,24 @@
 import os
-import requests
 import base64
-import json
-from bs4 import BeautifulSoup
-from io import BytesIO
 import csv
 from openai import OpenAI
 from dotenv import load_dotenv
 from google.generativeai import configure, GenerativeModel
+import time
 
 PROMPT1 = "Describe the image with a red border to someone who is blind. The description will be read aloud by a screen reader, so keep the description to 1-2 sentences and follow best practices for alt text. Convey the most important visual details that are relevant in the context of the webpage this image is a part of, but don’t overwhelm the user with unnecessary information. Consider why this image is included instead of describing every little detail. No need to say 'image of' or 'picture of', but do say if it's a logo, illustration, or diagram."
 PROMPT2 = "Describe the image with a red border to someone who is blind. This screenshot includes a visual element (ex: product banner, photo, text etc.) generate appropriate alt text for that visual element only ignoring the surrounding webpage layout or article structure. Keep the description concise and relevant to the image content and purpose."
 
 load_dotenv()
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 configure(api_key=os.getenv("GEMINI_API_KEY"))
+open_ai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+open_router_client = OpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key=os.getenv("OPENROUTER_API_KEY")
+)
 
 def describe_image_gpt4(image_url):
-    response = client.chat.completions.create(
+    response = open_ai_client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
             {
@@ -48,7 +49,7 @@ def process_screenshot(image_path, model="openai"):
         if model == "openai":
             with open(image_path, "rb") as image_file:
                 image_data = base64.b64encode(image_file.read()).decode('utf-8')
-            response = client.chat.completions.create(
+            response = open_ai_client.chat.completions.create(
                 model="gpt-4o",
                 messages=[
                     {
@@ -84,7 +85,7 @@ def process_screenshot(image_path, model="openai"):
 def batch_process_screenshots(folder_path, output_file="alttext_results.csv"):
     with open(output_file, mode="w", newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(["Image", "Model", "Generated Alt Text"]) 
+        writer.writerow(["Image", "Model", "Generated Alt Text", "Time Elapsed (s)"]) 
         for filename in os.listdir(folder_path):
             if filename.lower().endswith((".png", ".jpg", ".jpeg")) and "highlight" in filename:
                 image_path = os.path.join(folder_path, filename)
@@ -93,10 +94,11 @@ def batch_process_screenshots(folder_path, output_file="alttext_results.csv"):
                     for PROMPT in [PROMPT1, PROMPT2]:   
                         print(f"model: {model.capitalize()}")
                         try:
+                            start = time.time()
                             if model == "openai":
                                 with open(image_path, "rb") as image_file:
                                     image_data = base64.b64encode(image_file.read()).decode('utf-8')
-                                response = client.chat.completions.create(
+                                response = open_ai_client.chat.completions.create(
                                     model="gpt-4o",
                                     messages=[
                                         {
@@ -127,14 +129,10 @@ def batch_process_screenshots(folder_path, output_file="alttext_results.csv"):
                                 print("\ngenerated Alt Text (Gemini):")
                                 print(alt_text)
                             elif model == "llama":
-                                client = OpenAI(
-                                    base_url="https://openrouter.ai/api/v1",
-                                    api_key=os.getenv("OPENAI_API_KEY")
-                                )
                                 with open(image_path, "rb") as image_file:
                                     image_data = base64.b64encode(image_file.read()).decode('utf-8')
 
-                                completion = client.chat.completions.create(
+                                completion = open_router_client.chat.completions.create(
                                     model="meta-llama/llama-3.2-11b-vision-instruct:free",
                                     messages=[
                                         {
@@ -157,7 +155,8 @@ def batch_process_screenshots(folder_path, output_file="alttext_results.csv"):
                                 alt_text = completion.choices[0].message.content
                                 print("\ngenerated Alt Text (Llama 3.2 11B Vision Instruct):")
                                 print(alt_text)
-                            writer.writerow([filename, model, alt_text])
+                            end = time.time()
+                            writer.writerow([filename, model, alt_text, end-start])
                         except Exception as e:
                             print(f"failed to process {filename} with {model}: {e}")
                             writer.writerow([filename, model, f"Error: {e}"])
