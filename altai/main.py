@@ -90,7 +90,7 @@ def batch_process_screenshots(folder_path, output_file="alttext_results.csv"):
             if filename.lower().endswith((".png", ".jpg", ".jpeg")) and "highlight" in filename:
                 image_path = os.path.join(folder_path, filename)
                 print(f"processing: {filename}")
-                for model in ["openai", "gemini", "llama"]:
+                for model in ["openai", "gemini", "qwen"]:
                     for PROMPT in [PROMPT1, PROMPT2]:   
                         print(f"model: {model.capitalize()}")
                         try:
@@ -128,12 +128,12 @@ def batch_process_screenshots(folder_path, output_file="alttext_results.csv"):
                                 alt_text = response.text
                                 print("\ngenerated Alt Text (Gemini):")
                                 print(alt_text)
-                            elif model == "llama":
+                            elif model == "qwen":
                                 with open(image_path, "rb") as image_file:
                                     image_data = base64.b64encode(image_file.read()).decode('utf-8')
 
                                 completion = open_router_client.chat.completions.create(
-                                    model="meta-llama/llama-3.2-11b-vision-instruct:free",
+                                    model="qwen/qwen2.5-vl-72b-instruct:free",
                                     messages=[
                                         {
                                         "role": "user",
@@ -153,7 +153,7 @@ def batch_process_screenshots(folder_path, output_file="alttext_results.csv"):
                                     ]
                                 )
                                 alt_text = completion.choices[0].message.content
-                                print("\ngenerated Alt Text (Llama 3.2 11B Vision Instruct):")
+                                print("\ngenerated Alt Text (Qwen2.5 VL 72B Instruct):")
                                 print(alt_text)
                             end = time.time()
                             writer.writerow([filename, model, alt_text, end-start])
