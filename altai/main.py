@@ -86,7 +86,7 @@ def batch_process_screenshots(folder_path, output_file="alttext_results.csv"):
             if filename.lower().endswith((".png", ".jpg", ".jpeg")):
                 image_path = os.path.join(folder_path, filename)
                 print(f"processing: {filename}")
-                for model in ["openai", "gemini"]:
+                for model in ["openai", "gemini", "llama"]:
                     print(f"model: {model.capitalize()}")
                     try:
                         if model == "openai":
@@ -122,6 +122,37 @@ def batch_process_screenshots(folder_path, output_file="alttext_results.csv"):
                             alt_text = response.text
                             print("\ngenerated Alt Text (Gemini):")
                             print(alt_text)
+                        elif model == "llama":
+                            client = OpenAI(
+                                base_url="https://openrouter.ai/api/v1",
+                                api_key=os.getenv("OPENAI_API_KEY")
+                            )
+                            with open(image_path, "rb") as image_file:
+                                image_data = base64.b64encode(image_file.read()).decode('utf-8')
+
+                            completion = client.chat.completions.create(
+                                model="meta-llama/llama-3.2-11b-vision-instruct:free",
+                                messages=[
+                                    {
+                                    "role": "user",
+                                    "content": [
+                                        {
+                                        "type": "text",
+                                        "text": "What is in this image?"
+                                        },
+                                        {
+                                        "type": "image_url",
+                                        "image_url": {
+                                            "url": f"data:image/png;base64,{image_data}"
+                                        }
+                                        }
+                                    ]
+                                    }
+                                ]
+                            )
+                            alt_text = completion.choices[0].message.content
+                            print("\ngenerated Alt Text (Llama 3.2 11B Vision Instruct):")
+                            print(alt_text)
                         writer.writerow([filename, model, alt_text])
                     except Exception as e:
                         print(f"failed to process {filename} with {model}: {e}")
@@ -129,7 +160,6 @@ def batch_process_screenshots(folder_path, output_file="alttext_results.csv"):
 
 
 batch_process_screenshots("screenshots", "alttext_results.csv")
-
 
 # process_screenshot("screenshots/amazon.png", model="openai")
 
