@@ -37,8 +37,19 @@ def handle_command(command):
         time.sleep(1)
     elif "search bar" in command or "go to search" in command:
         print("focusing on search bar...")
-    elif "first heading" in command:
-        print("going to the first heading...")
+        try:
+            search_bar = driver.find_element(By.ID, "searchInput")
+            driver.execute_script("arguments[0].focus();", search_bar)
+        except:
+            print("can not find search bar")
+    elif "next heading" in command:
+        print("going to the next heading...")
+        driver.execute_script("""
+            const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+            if (headings.length > 0) {
+                headings[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        """)
     else:
         print("sorry, I don't recognize that command yet.")
 
