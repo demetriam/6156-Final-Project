@@ -42,11 +42,12 @@ def handle_command(command):
             driver.execute_script("arguments[0].focus();", search_bar)
         except:
             print("can not find search bar")
-    elif "next heading" in command:
-        print("going to the next heading...")
+    elif "first heading" in command:
+        print("going to the first heading...")
         driver.execute_script("""
-            const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+            headings = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6'));
             if (headings.length > 0) {
+                headings.sort((a,b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top)
                 headings[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         """)
